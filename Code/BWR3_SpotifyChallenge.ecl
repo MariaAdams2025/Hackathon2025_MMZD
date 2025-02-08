@@ -22,7 +22,7 @@ OUTPUT(CHOOSEN(SpotMusic, 150), NAMED('Raw_MusicDS'));
 SortedMusic := SORT(SpotMusic, Genre);
 
 //Display them: (See OUTPUT)
-OUTPUT(SortedMusic);
+OUTPUT(CHOOSEN(SortedMusic, 103));
 
 //Count and display result (See COUNT)
 //Result: Total count is 1159764:

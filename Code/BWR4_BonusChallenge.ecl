@@ -16,4 +16,8 @@ CombMusicLayout := RECORD
 END;
 
 
+//Remove duplicate,DDUPE
+//Sequence
+//Count
+
 //After doing this, create different playlists by Year and/or genre! Music is Life! 

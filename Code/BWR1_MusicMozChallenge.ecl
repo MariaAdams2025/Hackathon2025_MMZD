@@ -36,11 +36,11 @@ COUNT(MozMusic);
 //Challenge: 
 //Count total songs in the "Rock" genre and display number:
 
-MOZMUSIC(genre='Country');
+COUNT(MOZMUSIC(genre='ROCK'));
 //Result should have 12821 Rock songs
 
 //Display your Rock songs (OUTPUT):
-
+OUTPUT(MOZMUSIC(genre='ROCK'));
 
 
 //*********************************************************************************
