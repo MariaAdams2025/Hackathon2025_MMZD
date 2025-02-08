@@ -15,6 +15,5 @@ CombMusicLayout := RECORD
  STRING4  Source; //MOZ,MSD,SPOT
 END;
 
-OUTPUT('ToDo');
 
 //After doing this, create different playlists by Year and/or genre! Music is Life! 
