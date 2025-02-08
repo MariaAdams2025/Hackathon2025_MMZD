@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CloudHPCC",
+            "type": "ecl",
+            "request": "launch",
+            "protocol": "http",
+            "serverAddress": "challenge.us-hpccsystems-dev.azure.lnrsg.io",
+            "port": 8010,
+            "targetCluster": "thor",
+            "rejectUnauthorized": false,
+            "resultLimit": 100,
+            "timeoutSecs": 60,
+            "user": "YourTeamNameHere",
+            "password": ""
+        }
+    ]
+}
