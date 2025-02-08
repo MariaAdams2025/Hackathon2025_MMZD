@@ -26,7 +26,7 @@ OUTPUT(CHOOSEN(SortedMusic, 103));
 
 //Count and display result (See COUNT)
 //Result: Total count is 1159764:
-COUNT(SpotMusic)
+COUNT(SpotMusic);
 
 //*********************************************************************************
 //*********************************************************************************
@@ -34,9 +34,12 @@ COUNT(SpotMusic)
 //Challenge: 
 //Display songs by "garage" genre and then count the total 
 //Filter for garage genre and OUTPUT them:
-
+FilterGarage := SpotMusic(genre = 'garage'); 
+OUTPUT(FilterGarage, NAMED('FilteredGarageSongs'));
 
 //Count total garage songs
+GarageCount := COUNT(FilterGarage); 
+OUTPUT(GarageCount, NAMED('GarageSongsCount'));
 //Result should have 17123 records:
 
 
@@ -45,6 +48,9 @@ COUNT(SpotMusic)
 
 //Challenge: 
 //Count how many songs was produced by "Prince" in 2001
+FilteredPrince2001 := SpotMusic(Artist_name = 'Prince' AND Year = 2001);
+Prince2001Count := COUNT(FilteredPrince2001);
+OUTPUT(Prince2001Count, NAMED('Prince2001SongsCount'));
 
 //Filter ds for 'Prince' AND 2001
 
