@@ -126,14 +126,11 @@ OUTPUT(CountColdPopular, NAMED('ColdplayPopularSongCount'));
 //Count all songs that whose "SongDuration" (duration_ms) is between 200000 AND 250000 AND "Speechiness" is above .75
 //Hint: (Duration_ms BETWEEN 200000 AND 250000)
 Time := SpotMusic(duration_ms BETWEEN 200000 AND 250000 AND speechiness > .75);
-countTime := COUNT(time);
-OUTPUT(countTime);
 //Filter for required conditions
-
+countTime := COUNT(time);
 //Count result (should be 2153):
-
 //Display result:
-
+OUTPUT(countTime, NAMED('CountTime'));
 //*********************************************************************************
 //*********************************************************************************
 
@@ -168,37 +165,30 @@ OUTPUT(NewDataset);
 
 //COORELATION Challenge:
 //1- What’s the correlation between "Popularity" AND "Liveness"
-//2- What’s the correlation between "Loudness" AND "Energy"
-
-//Result for liveness = -0.05696845812100079, Energy = -0.03441566150625201
-/*
-corrPopLiveness := CORRELATION(SpotMusic, popularity, liveness);
-OUTPUT(corrPopLiveness);
-/*
-corrLoudEnergy := CORRELATION(SpotMusic, loudness, REAL4(energy));
-OUTPUT(corrLoudEnergy);*/
+// Create a clean dataset with proper numeric conversions
 // Define a new record layout with energy as REAL4
-/*NewData := RECORD
-REAL4 loudness;
-REAL4 energy; // energy is now a REAL4
-END;
-
 // Convert energy from STRING8 to REAL4 and create the new dataset
-ConvertedSpotMusic := PROJECT(SpotMusic,
-TRANSFORM(NewData,
-SELF.loudness := LEFT.loudness;
-SELF.energy := IF(ISVALID(REAL4, LEFT.energy), REAL4(LEFT.energy), 0.0) // Convert energy safely
-)
+CleanSpotMusic := PROJECT(SpotMusic,
+    TRANSFORM(
+        {
+            REAL4 popularity,
+            REAL4 loudness,
+            REAL4 energy,
+            REAL4 liveness
+        },
+        SELF.popularity := (REAL4)LEFT.popularity,
+        SELF.loudness := LEFT.loudness,
+        SELF.energy := (REAL4)LEFT.energy,
+        SELF.liveness := LEFT.liveness
+    )
 );
-*/
 //Calculate the correlation between popularity and liveness
-//corrPopLiveness := CORRELATION(SpotMusic, popularity, liveness);
-//OUTPUT(corrPopLiveness);
-//*
-// Calculate the correlation between loudness and energy from the transformed dataset/*
-/*corrLoudEnergy := CORRELATION(ConvertedSpotMusic, loudness, energy);
-OUTPUT(corrLoudEnergy);
-*/
+corrPopLiveness := CORRELATION(CleanSpotMusic, popularity, liveness);
+// Calculate the correlation between loudness and energy from the transformed dataset
+corrLoudEnergy := CORRELATION(CleanSpotMusic, energy,loudness);
+// Output 
+OUTPUT(corrPopLiveness, NAMED('PopularityVsLiveness'));
+OUTPUT(corrLoudEnergy, NAMED('LoudnessVsEnergy'));
 //*********************************************************************************
 //*********************************************************************************
 
@@ -214,24 +204,31 @@ OUTPUT(corrLoudEnergy);
 // * New BOOLEAN Column called isPopular, and it's TRUE is IF "Popularity" is greater than 80
 // * New DECIMAL3_2 Column called "Funkiness" which is "Energy" + "Danceability"
 //Display the output
-
 //Result should have 4 columns called "Song", "Artist", "isPopular", and "Funkiness"
-
-
 //Hint: Create your new layout and use TRANSFORM for new fields.
 // Use PROJECT, to loop through your music dataset
 
 //Define the RECORD layout
+NewSpotLayout := RECORD
+    STRING     Song;
+    STRING     Artist;
+    BOOLEAN    isPopular;
+    DECIMAL3_2 Funkiness;
+END;
 
 
 //Build TRANSFORM
-
-
-//Project here:
-
+NewSpotDataset := PROJECT(SpotMusic,
+    TRANSFORM(NewSpotLayout,
+        SELF.Song := LEFT.track_name,
+        SELF.Artist := LEFT.artist_name,
+        SELF.isPopular := LEFT.popularity > 80,
+        SELF.Funkiness := (DECIMAL3_2)((REAL4)LEFT.energy + LEFT.danceability)
+    )
+);
 
 //Display result here:
-
+OUTPUT(NewSpotDataset, NAMED('NewDataSet'));
 
 //*********************************************************************************
 //*********************************************************************************
