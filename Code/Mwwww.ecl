@@ -1,23 +1,23 @@
-﻿// Import necessary data files
+Export Mwwww := MODULE
+ 
 IMPORT $;
 SpotMusic := $.File_Music.SpotDS;
 MSDMusic := $.File_Music.MSDDS;
 MozMusic := $.File_Music.MozDS;
 
-OUTPUT(MSDMusic);
-
+// Define the common record format
 CombMusicLayout := RECORD
- UNSIGNED RECID;
- STRING   SongTitle;
- STRING   AlbumTitle;
- STRING   Artist;
- STRING   Genre;
- STRING4  ReleaseYear;
- STRING4  Source; //MOZ,MSD,SPOT
+    UNSIGNED RECID;
+    STRING   SongTitle;
+    STRING   AlbumTitle;
+    STRING   Artist;
+    STRING   Genre;
+    STRING4  ReleaseYear;
+    STRING4  Source; // MOZ, MSD, SPOT
 END;
 
 // Transform MozMusic records
- CombMusicLayout TransformMoz($.File_Music.MozLayout L, UNSIGNED C) := TRANSFORM
+CombMusicLayout TransformMoz($.File_Music.MozLayout L, UNSIGNED C) := TRANSFORM
     SELF.RECID       := C;
     SELF.SongTitle   := TRIM(L.tracktitle);
     SELF.AlbumTitle  := TRIM(L.title);
@@ -25,13 +25,7 @@ END;
     SELF.Genre       := TRIM(L.genre);
     SELF.ReleaseYear := (STRING4)IF(L.releasedate[1..4] > '', L.releasedate[1..4], '0000');
     SELF.Source      := 'MOZ';
-
-    // Print the transformed record to the output
-    OUTPUT(SELF);
 END;
-
-
-
 
 // Transform MSDMusic records
 CombMusicLayout TransformMSD($.File_Music.MSDLayout L) := TRANSFORM
@@ -65,3 +59,5 @@ CombinedMusic := MozTransformed + MSDTransformed + SpotTransformed;
 
 // Sort by Artist and SongTitle
 SortedMusic := SORT(CombinedMusic, Artist, SongTitle);
+
+END;
