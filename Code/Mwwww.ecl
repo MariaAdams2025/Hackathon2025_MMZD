@@ -1,5 +1,3 @@
-Export Mwwww := MODULE
- 
 IMPORT $;
 SpotMusic := $.File_Music.SpotDS;
 MSDMusic := $.File_Music.MSDDS;
@@ -58,6 +56,5 @@ SpotTransformed := PROJECT(SpotMusic, TransformSpot(LEFT));
 CombinedMusic := MozTransformed + MSDTransformed + SpotTransformed;
 
 // Sort by Artist and SongTitle
-SortedMusic := SORT(CombinedMusic, Artist, SongTitle);
-
-END;
+SortedArtMusic := SORT(CombinedMusic, Artist);
+SongTitleSorted:= SORT(CombinedMusic, SongTitle);
