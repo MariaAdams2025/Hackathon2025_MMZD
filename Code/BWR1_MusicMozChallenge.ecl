@@ -110,34 +110,26 @@ OUTPUT(MaxTitleLength, NAMED('Max_Title_Length'));
 //Challenge: 
 //Display all songs produced by "U2" , SORT it by title.
 //Filter track by artist
-
+U2Songs := MozMusic(name ='U2');
 //Sort the result by tracktitle
-
+SortedU2Songs := SORT(U2Songs, tracktitle);
 //Output the result
-
+OUTPUT(SortedU2Songs,NAMED('U2_Songs'));
 //Count result 
-
+COUNT(SortedU2Songs);
 //Result has 190 records
-U2Tracks := MozMusic(name = 'U2');
-SortedU2Tracks := SORT(U2Tracks, tracktitle);
-TotalU2Tracks := COUNT(SortedU2Tracks);
-OUTPUT(SortedU2Tracks, NAMED('U2_Tracks'));
-U2TracksDataset := COUNT(TotalU2Tracks);
 
-OUTPUT(TotalU2Tracks, NAMED('Total_U2_Tracks'));
 
 //*********************************************************************************
 //*********************************************************************************
 //Challenge: 
 //Count all songs where guest musicians appeared 
-
 //Hint: Think of the filter as "not blank" 
-
 //Filter for "guestmusicians"
-
+GuestMusicians := MozMusic(guestmusicians != '');
 //Display Count result
-                             
-//Result should be 44588 songs  
+//Result should be 44588 songs 
+COUNT(GuestMusicians);
 
 
 //*********************************************************************************
@@ -148,12 +140,9 @@ OUTPUT(TotalU2Tracks, NAMED('Total_U2_Tracks'));
 // Get the "release" value from the MusicMoz Title field
 // Get the "artist" value from the MusicMoz Name field
 // Get the "year" value from the MusicMoz ReleaseDate field
-
 //Result should only have 4 fields. 
 
 //Hint: First create your new RECORD layout  
-
-
 
 //Next: Standalone Transform - use TRANSFORM for new fields.
 
@@ -162,7 +151,31 @@ OUTPUT(TotalU2Tracks, NAMED('Total_U2_Tracks'));
 
 
 // Display result  
-      
+
+EXPORT MusicRec := RECORD
+    STRING track := '';
+    STRING release := '';
+    STRING artist := '';
+    STRING year := '';
+END;
+
+// Create transform to map fields
+EXPORT MusicTransform := TRANSFORM
+    MusicRec,
+    SELF.track := LEFT.tracktitle,
+    SELF.release := LEFT.title,
+    SELF.artist := LEFT.name,
+    SELF.year := LEFT.releasedate[1..4],
+    SELF := []
+END;
+
+// Project the data using the transform
+SimplifiedMusic := PROJECT(MozMusic,
+                         MusicTransform(LEFT));
+
+// Output the results
+OUTPUT(SimplifiedMusic);
+
 
 //*********************************************************************************
 //*********************************************************************************
@@ -174,41 +187,46 @@ OUTPUT(TotalU2Tracks, NAMED('Total_U2_Tracks'));
 
 //Challenge: 
 //Display number of songs per "Genre", display genre name and count for each 
-
 //Hint: All you need is a 2 field TABLE using cross-tab
-
 //Display the TABLE result      
-
 //Count and display total records in TABLE
-
 //Result has 2 fields, Genre and TotalSongs, count is 1000
+GenreCounts := TABLE(MozMusic,
+                    {genre,
+                     UNSIGNED4 TotalSongs := COUNT(GROUP)},
+                    genre);
 
-GenreSongCount_Layout := RECORD
-    STRING Genre;
-    UNSIGNED4 TotalSongs;
-END;
+// Sort results by count descending
+SortedGenre := SORT(GenreCounts, -TotalSongs);
 
-GroupedMozMusic := GROUP(MozMusic, genre);
-genere_song_count := TABLE(GroupedMozMusic, GenreSongCount_Layout, 
-    TRANSFORM(GenreSongCount_Layout, LEFT)
-    SELF.Genre := LEFT.genre;
-    SELF.TotalSongs := COUNT(LEFT);
-END);
-OUTPUT(genere_song_count, NAMED('Genere_Song_Count'));
-total_genere_song_count := COUNT(genere_song_count);
-OUTPUT(total_genere_song_count, NAMED('Total_Records'));
+// Output the genre counts
+OUTPUT(SortedGenre, NAMED('SongsByGenre'));
 
+// Count total records in the result
+TotalCount := COUNT(GenreCounts);
+OUTPUT(TotalCount, NAMED('TotalGenres'));
 //*********************************************************************************
 //*********************************************************************************
 //What Artist had the most releases between 2001-2010 (releasedate)?
-
+FilteredRecs := DEDUP(
+    MozMusic(releasedate BETWEEN '2001' AND '2010'),
+    name, title
+);
 //Hint: All you need is a cross-tab TABLE 
-
 //Output Name, and Title Count(TitleCnt)
-
+ArtistCounts := TABLE(FilteredRecs,
+                     {name,
+                      UNSIGNED4 TitleCnt := COUNT(GROUP)},
+                     name,
+                     MERGE);
 //Filter for year (releasedate)
-
+SortedResults := SORT(ArtistCounts, -TitleCnt);
 //Cross-tab TABLE
-
-
+OUTPUT(SortedResults);
 //Display the result  
+TopArtist := CHOOSEN(
+    SORT(ArtistCounts, -TitleCnt),
+    1
+);
+// Output just the top result
+OUTPUT(TopArtist);
