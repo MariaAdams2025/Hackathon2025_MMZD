@@ -17,7 +17,7 @@ OUTPUT(CHOOSEN(MozMusic, 150), NAMED('Moz_MusicDS'));
 //Challenge: 
 //Count all the records in the dataset:
 
-COUNT(MozMusic);
+OUTPUT(COUNT(MozMusic));
 
 //Result: Total count is 136510
 
@@ -116,7 +116,7 @@ SortedU2Songs := SORT(U2Songs, tracktitle);
 //Output the result
 OUTPUT(SortedU2Songs,NAMED('U2_Songs'));
 //Count result 
-COUNT(SortedU2Songs);
+OUTPUT(COUNT(SortedU2Songs), NAMED('U2_count'));
 //Result has 190 records
 
 
@@ -129,7 +129,7 @@ COUNT(SortedU2Songs);
 GuestMusicians := MozMusic(guestmusicians != '');
 //Display Count result
 //Result should be 44588 songs 
-COUNT(GuestMusicians);
+OUTPUT(COUNT(GuestMusicians), NAMED('CountGuestMusicians'));
 
 
 //*********************************************************************************
@@ -143,38 +143,20 @@ COUNT(GuestMusicians);
 //Result should only have 4 fields. 
 
 //Hint: First create your new RECORD layout  
-
 //Next: Standalone Transform - use TRANSFORM for new fields.
-
-
 //Use PROJECT, to loop through your music dataset
-
-
 // Display result  
 
-EXPORT MusicRec := RECORD
-    STRING track := '';
-    STRING release := '';
-    STRING artist := '';
-    STRING year := '';
-END;
-
-// Create transform to map fields
-EXPORT MusicTransform := TRANSFORM
-    MusicRec,
+SimplifiedMusic := PROJECT(MozMusic, TRANSFORM({STRING track, STRING375 release, STRING artist, STRING year}, 
     SELF.track := LEFT.tracktitle,
     SELF.release := LEFT.title,
     SELF.artist := LEFT.name,
     SELF.year := LEFT.releasedate[1..4],
     SELF := []
-END;
+));
 
-// Project the data using the transform
-SimplifiedMusic := PROJECT(MozMusic,
-                         MusicTransform(LEFT));
 
-// Output the results
-OUTPUT(SimplifiedMusic);
+OUTPUT(SimplifiedMusic, NAMED('SimplifiedMusic'));
 
 
 //*********************************************************************************
@@ -207,6 +189,7 @@ TotalCount := COUNT(GenreCounts);
 OUTPUT(TotalCount, NAMED('TotalGenres'));
 //*********************************************************************************
 //*********************************************************************************
+
 //What Artist had the most releases between 2001-2010 (releasedate)?
 FilteredRecs := DEDUP(
     MozMusic(releasedate BETWEEN '2001' AND '2010'),
@@ -222,11 +205,8 @@ ArtistCounts := TABLE(FilteredRecs,
 //Filter for year (releasedate)
 SortedResults := SORT(ArtistCounts, -TitleCnt);
 //Cross-tab TABLE
-OUTPUT(SortedResults);
+OUTPUT(SortedResults, NAMED('CROSS_TABLE'));
 //Display the result  
-TopArtist := CHOOSEN(
-    SORT(ArtistCounts, -TitleCnt),
-    1
-);
+TopArtist := CHOOSEN(SORT(ArtistCounts, -TitleCnt), 1);
 // Output just the top result
-OUTPUT(TopArtist);
+OUTPUT(TopArtist, NAMED('TopArtist'));
